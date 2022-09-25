@@ -61,3 +61,20 @@ export const deleteDestination = async (id) => {
     };
   }
 };
+
+export const createDestination = async (data = {}) => {
+  try {
+    const response = await fetch("/api/v1/destinations/", {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: { "Content-Type": "application/json" },
+    });
+    const json = await response.json();
+
+    return json;
+  } catch (e) {
+    return {
+      error: "An error occured",
+    };
+  }
+};

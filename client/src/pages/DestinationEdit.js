@@ -1,6 +1,6 @@
 import Page from "../core/Page.js";
 import { getDestination, updateDestination } from "../utils/api.js";
-import { formValues } from "../utils/helpers.js";
+import { formatDateForInput, formValues } from "../utils/helpers.js";
 
 export default class DestinationEdit extends Page {
   get head() {
@@ -10,42 +10,53 @@ export default class DestinationEdit extends Page {
   }
 
   async fetch() {
-    const id = this.getIDFromUrl();
-    const { data } = (await getDestination(id)) || {};
+    const { data } = (await getDestination(this.getParam("id"))) || {};
 
-    if (!data) window.location.redirect("/");
+    if (!data) window.location = "/";
 
     this.destination = data;
-  }
-
-  getIDFromUrl() {
-    const params = new URLSearchParams(window.location.search);
-
-    return params.get("id");
   }
 
   async onSubmit(event) {
     event.preventDefault();
     const formData = formValues(new FormData(event.target));
     const { data, errors } = await updateDestination(
-      this.getIDFromUrl(),
+      this.getParam("id"),
       formData
     );
-    if (data) this.destination = data;
-    if (errors) this.errors = errors;
+
+    if (errors) {
+      this.errors = errors;
+    } else {
+      window.location.pathname = "/";
+    }
 
     this.refresh();
   }
 
   render() {
     return /*html*/ `
-      <div>
+      <div class="container">
+        <h1>Edit destination ${this.destination.name}</h1>
+
         <form class="form" onsubmit="$this.onSubmit">
+        <div class="field-group">
+          <label for="name">Name</label>
+          <input required value="${
+            this.destination.name
+          }" type="text" name="name" />
+        </div>
+        <div class="field-group">
+          <label for="country">Country</label>
+          <input required value="${
+            this.destination.country
+          }" type="text" name="country" />
+        </div>
           <div class="field-group">
-            <label for="name">Name</label>
-            <input required value="${
-              this.destination.name
-            }" type="text" name="name" />
+            <label for="date">Date</label>
+            <input required value="${formatDateForInput(
+              this.destination.date
+            )}" type="date" name="date" />
           </div>
           <div class="field-group">
             <label for="description">Description</label>
@@ -55,7 +66,7 @@ export default class DestinationEdit extends Page {
           </div>
           ${RenderErrors(this.errors)}
           <button type="submit" class="button button-primary">
-            Update
+            Update destination
           </button>
         </form>
       </div>

@@ -16,21 +16,23 @@ export default class DestinationIndex extends Page {
 
   async deleteDestination(event) {
     if (window.confirm("Do you really want to delete this destination?")) {
+      console.log("deleting");
       const id = event.target.closest("[data-id]").dataset.id;
       const { error } = await deleteDestination(id);
-      console.log(error);
 
       if (!error) {
-        this.destinations = [];
         this.refresh({ fetch: true });
       }
     }
   }
 
   render() {
-    console.log("Rendering", this.destinations);
+    console.log("rendering", this.destinations);
     return /*html*/ `
     <div class="container">
+        <div class="index-actions">
+          <a href="/create-destination.html" class="button button-primary create">Add new destination</a>
+        </div>
         <ul>
             ${this.renderList(
               this.destinations,
@@ -38,7 +40,7 @@ export default class DestinationIndex extends Page {
                         <p class="destination-item-meta">
                             <span>${d.country}</span>
                         </p>
-                        <p class="destination-item-title">${d.name} + ${d._id}</p>
+                        <p class="destination-item-title">${d.name}</p>
                         <p class="destination-item-body">${d.description}</p>
                         <div class="destination-item-actions">
                             <button class="button button-danger" onclick="$this.deleteDestination">Delete</button>

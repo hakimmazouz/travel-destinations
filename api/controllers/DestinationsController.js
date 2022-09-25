@@ -1,6 +1,7 @@
 const {
   prepareForInsert,
   validateDestinationUpdate,
+  validateDestinationCreate,
 } = require("../lib/destinations");
 const { validatePresence } = require("../lib/validator");
 const Destinations = require("../repos/Destinations");
@@ -11,7 +12,7 @@ const { ObjectId } = require("mongodb");
 const upload = multer({ dest: __dirname + "/../temp/uploads/" });
 
 router.get("/destinations", async (req, res) => {
-  const data = await Destinations.find().toArray();
+  const data = await (await Destinations.find().toArray()).reverse();
 
   res.json({ data });
 });
@@ -27,15 +28,23 @@ router.get("/destinations/:id", async (req, res) => {
 });
 
 router.post("/destinations", upload.single("image"), async (req, res) => {
+  console.log(req.body);
   const image = req.file || null;
-  const destinationData = prepareForInsert({ ...res.body, image });
-  const destination = await Destinations.insertOne(destinationData);
+  const { updated, errors } = validateDestinationCreate(req.body);
 
-  res.json(destination);
+  if (errors) {
+    res.json({ errors });
+  } else {
+    const { insertedId } = await Destinations.insertOne(updated);
+    const data = await Destinations.findOne({
+      _id: insertedId,
+    });
+    console.log({ data });
+    res.json({ data });
+  }
 });
 
 router.patch("/destinations/:id", async (req, res) => {
-  console.log(req.body);
   const { updated, errors } = validateDestinationUpdate(req.body);
 
   if (errors) return res.json({ errors });
@@ -67,7 +76,7 @@ router.delete("/destinations/:id", async (req, res) => {
     _id: new ObjectId(req.params.id),
   });
 
-  res.status(200);
+  res.status(200).json({});
 });
 
 module.exports = router;

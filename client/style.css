@@ -122,6 +122,14 @@ li {
   font-weight: 700;
 }
 
+.index-actions {
+  padding: var(--space-4) 0;
+  display: flex;
+  justify-content: center;
+}
+.index-actions .create {
+}
+
 /*
 * Spacing system. 1 unit == 4px == .25rem
 */

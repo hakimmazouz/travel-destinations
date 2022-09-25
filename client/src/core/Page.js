@@ -64,4 +64,10 @@ export default class Page {
     if (fetch) await this.fetch();
     this._renderPage();
   }
+
+  getParam(param) {
+    const params = new URLSearchParams(window.location.search);
+
+    return params.get(param);
+  }
 }
