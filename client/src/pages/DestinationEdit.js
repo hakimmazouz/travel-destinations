@@ -81,7 +81,8 @@ const RenderErrors = (errors = {}) => {
     <div class="error-display">
       <ul>
         ${errorList.map(
-          ([name, error]) => /*html*/ `<li><span>${name}</span> — ${error}</li>`
+          ([name, error]) =>
+            /*html*/ `<li><span>${name}</span> — ${error.message}</li>`
         )}
       </ul>
     </div>

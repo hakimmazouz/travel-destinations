@@ -4,15 +4,21 @@ const express = require("express");
 const apiRoutes = require("./routes");
 const app = new express();
 const morgan = require("morgan");
+const { connectDB } = require("./db");
 
-app.use(morgan("tiny"));
-app.use(express.json());
-app.use("/api/v1", apiRoutes);
+async function main() {
+  await connectDB();
+  app.use(morgan("tiny"));
+  app.use(express.json());
+  app.use("/api/v1", apiRoutes);
 
-app.listen(process.env.API_EXPRESS_PORT, (err) => {
-  if (err) {
-    console.log("Error in server setup");
-    app.close();
-  }
-  console.log("API listening on port ", process.env.API_EXPRESS_PORT);
-});
+  app.listen(process.env.API_EXPRESS_PORT, (err) => {
+    if (err) {
+      console.log("Error in server setup");
+      app.close();
+    }
+    console.log("API listening on port ", process.env.API_EXPRESS_PORT);
+  });
+}
+
+main();

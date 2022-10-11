@@ -1,82 +1,53 @@
-const {
-  prepareForInsert,
-  validateDestinationUpdate,
-  validateDestinationCreate,
-} = require("../lib/destinations");
-const { validatePresence } = require("../lib/validator");
-const Destinations = require("../repos/Destinations");
 const express = require("express");
 const router = new express();
 const multer = require("multer");
-const { ObjectId } = require("mongodb");
+const Destination = require("../models/Destination");
 const upload = multer({ dest: __dirname + "/../temp/uploads/" });
 
 router.get("/destinations", async (req, res) => {
-  const data = await (await Destinations.find().toArray()).reverse();
+  const data = await Destination.find();
 
   res.json({ data });
 });
 
 router.get("/destinations/:id", async (req, res) => {
-  const data = await Destinations.findOne({
-    _id: new ObjectId(req.params.id),
-  });
-
-  console.log(data);
+  const data = await Destination.findById(req.params.id).exec();
 
   res.json({ data });
 });
 
 router.post("/destinations", upload.single("image"), async (req, res) => {
-  console.log(req.body);
   const image = req.file || null;
-  const { updated, errors } = validateDestinationCreate(req.body);
 
-  if (errors) {
-    res.json({ errors });
-  } else {
-    const { insertedId } = await Destinations.insertOne(updated);
-    const data = await Destinations.findOne({
-      _id: insertedId,
-    });
-    console.log({ data });
-    res.json({ data });
+  try {
+    const destination = new Destination(req.body);
+    await destination.save();
+    res.json({ data: destination });
+  } catch (e) {
+    res.json({ errors: e.errors });
   }
 });
 
 router.patch("/destinations/:id", async (req, res) => {
-  const { updated, errors } = validateDestinationUpdate(req.body);
-
-  if (errors) return res.json({ errors });
-
-  const { ok } = await Destinations.findOneAndUpdate(
-    { _id: new ObjectId(req.params.id) },
-    {
-      $set: updated,
-    }
-  );
-
-  if (ok) {
-    const updatedDoc = await Destinations.findOne({
-      _id: ObjectId(req.params.id),
-    });
-
-    return res.json({ data: updatedDoc });
-  } else {
-    return res.json({
-      errors: {
-        General: "An error occured",
-      },
-    });
+  try {
+    const destination = await Destination.findByIdAndUpdate(
+      req.params.id,
+      req.body
+    ).exec();
+    return res.json({ data: destination });
+  } catch (e) {
+    return res.json({ errors: e.errors });
   }
 });
 
 router.delete("/destinations/:id", async (req, res) => {
-  await Destinations.findOneAndDelete({
-    _id: new ObjectId(req.params.id),
-  });
+  try {
+    await Destination.findByIdAndDelete(req.params.id).exec();
+  } catch (e) {
+    // do nothing with the error
+  }
 
-  res.status(200).json({});
+  res.json({});
 });
 
 module.exports = router;
