@@ -130,6 +130,14 @@ li {
 .index-actions .create {
 }
 
+.page-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: var(--space-4, --space-8);
+}
+
 /*
 * Spacing system. 1 unit == 4px == .25rem
 */

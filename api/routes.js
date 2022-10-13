@@ -1,11 +1,13 @@
 const express = require("express");
-const DebugController = require("./controllers/DebugController");
-const DestinationsController = require("./controllers/DestinationsController");
+const debug = require("./routes/debug");
+const auth = require("./routes/auth");
+const destinations = require("./routes/destinations");
 const routes = new express();
 
-routes.use(DestinationsController);
+routes.use("/destinations", destinations);
+routes.use("/auth", auth);
 
-routes.get("/debug", DebugController.debug);
+routes.get("/debug", debug.debug);
 
 routes.get("*", function (req, res) {
   res.status(404).json({

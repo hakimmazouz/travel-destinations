@@ -1,12 +1,34 @@
 import EventEmitter from "./core/EventEmitter.js";
+import Store from "./core/Store.js";
+import { APP_STATE } from "./utils/const.js";
 
 export default class App {
-  constructor({ el, pages }) {
+  constructor({ el, pages, state, elements }) {
     this.el = el || document.body;
     this.pages = pages;
+    this.elements = elements;
     this.events = new EventEmitter();
+    this.store = new Store({ state });
 
+    this.startElements();
     this.startPage();
+  }
+
+  startElements() {
+    this.currentElements = {};
+    Object.entries(this.elements).forEach(async ([name, constructor]) => {
+      const el = document.querySelector(constructor.parent);
+      if (el) {
+        this.currentElements[name] = new constructor({
+          app: this,
+          el,
+        });
+
+        await this.currentElements[name].started();
+        this.currentElements[name]._renderElement();
+        await this.currentElements[name].mounted();
+      }
+    });
   }
 
   async startPage() {
@@ -16,7 +38,7 @@ export default class App {
       this.currentPage = new Page({ app: this });
       await this.currentPage.fetch();
       await this.currentPage.started();
-      this.currentPage._renderPage();
+      this.currentPage._renderElement();
       await this.currentPage.mounted();
 
       this.updateHead();
