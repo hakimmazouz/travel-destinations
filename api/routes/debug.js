@@ -1,8 +1,8 @@
-const Destinations = require("../repos/Destinations");
+const Destination = require("../models/Destination");
 
 module.exports = {
   async debug(req, res) {
-    const cursor = await Destinations.find();
+    const cursor = await Destination.find();
     const destinations = await cursor.toArray();
 
     res.json(destinations);

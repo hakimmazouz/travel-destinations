@@ -16,25 +16,25 @@ export default class DestinationIndex extends Page {
 
   async deleteDestination(event) {
     if (window.confirm("Do you really want to delete this destination?")) {
-      console.log("deleting");
       const id = event.target.closest("[data-id]").dataset.id;
       const { error } = await deleteDestination(id);
 
       if (!error) {
         this.refresh({ fetch: true });
+      } else {
+        console.log(error);
       }
     }
   }
 
   render() {
-    console.log("rendering", this.destinations);
     return /*html*/ `
     <div class="container">
         <div class="index-actions">
           <a href="/create-destination.html" class="button button-primary create">Add new destination</a>
         </div>
         <ul>
-            ${this.renderList(
+            ${this.renderEach(
               this.destinations,
               (d) => /*html*/ `<li class="destination-item" data-id="${d._id}">
                         <p class="destination-item-meta">
@@ -43,8 +43,14 @@ export default class DestinationIndex extends Page {
                         <p class="destination-item-title">${d.name}</p>
                         <p class="destination-item-body">${d.description}</p>
                         <div class="destination-item-actions">
-                            <button class="button button-danger" onclick="$this.deleteDestination">Delete</button>
-                            <a href="/edit-destination.html?id=${d._id}" class="button button-primary">Edit</a>
+                            ${
+                              this.store.state.currentUser
+                                ? /*html*/ `<button class="button button-danger" onclick="$this.deleteDestination">Delete</button>`
+                                : ""
+                            }
+                            <a href="/edit-destination.html?id=${
+                              d._id
+                            }" class="button button-primary">Edit</a>
                         </div>
                 </li>`
             )}

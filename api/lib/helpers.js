@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt");
 const entityMap = {
   "&": "&amp;",
   "<": "&lt;",
@@ -19,4 +20,9 @@ exports.escapeHTML = function escapeHTML(string) {
   return String(string).replace(/[&<>"'`=\/]/g, function fromEntityMap(s) {
     return entityMap[s];
   });
+};
+
+exports.hashPassword = (password) => {
+  const saltRounds = 10;
+  return bcrypt.hash(password, saltRounds);
 };

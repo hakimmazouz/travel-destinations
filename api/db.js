@@ -1,4 +1,4 @@
-const { MongoClient } = require("mongodb");
-const client = new MongoClient(process.env.MONGODB_CONNECTION_URI);
+const mongoose = require("mongoose");
 
-module.exports = client.db("travel-app");
+exports.connectDB = async () =>
+  await mongoose.connect(process.env.MONGODB_CONNECTION_URI);

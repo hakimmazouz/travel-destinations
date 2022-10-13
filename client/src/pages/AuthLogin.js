@@ -1,46 +1,47 @@
 import Page from "../core/Page.js";
-import { createDestination } from "../utils/api.js";
+import { loginUser } from "../utils/api.js";
 import { formValues } from "../utils/helpers.js";
 
-export default class DestinationCreate extends Page {
+export default class AuthLogin extends Page {
   async onSubmit(event) {
     event.preventDefault();
     const formData = formValues(new FormData(event.target));
-    const { data, errors } = await createDestination(formData);
-    console.log(data);
+    const { data, error } = await loginUser(formData);
     if (data) {
       // window.location.pathname = "/destination/" + data._id;
+      this.store.state.currentUser = data.user;
+      this.store.state.currentUserToken = data.token;
+
       window.location.pathname = "/";
     } else {
-      if (errors) this.errors = errors;
+      if (error) {
+        this.error = error;
+        this.refresh();
+      }
     }
   }
 
   render() {
     return /*html*/ `
       <div class="container">
-        <h1>Create a destination</h1>
-
+        <h1>Login</h1>
+        ${
+          this.error
+            ? /*html*/ `<div class="error-display">${this.error}</div>`
+            : ""
+        }
         <form class="form" onsubmit="$this.onSubmit">
           <div class="field-group">
-            <label for="name">Name</label>
-            <input required type="text" name="name" />
+            <label for="email">Email</label>
+            <input required type="email" name="email" />
           </div>
           <div class="field-group">
-            <label for="country">Country</label>
-            <input required type="text" name="country" />
-          </div>
-          <div class="field-group">
-            <label for="date">Date</label>
-            <input required type="date" name="date" />
-          </div>
-          <div class="field-group">
-            <label for="description">Description</label>
-            <textarea required name="description" rows="18"></textarea>
+            <label for="password">Password</label>
+            <input required type="password" name="password" />
           </div>
           ${RenderErrors(this.errors)}
           <button type="submit" class="button button-primary">
-            Create destination
+            Log in
           </button>
         </form>
       </div>
